@@ -1,0 +1,13 @@
+{
+  "requestId":"REQUEST-1",
+  "columns":{
+    "Column-name-1":{
+      "name":"Column-name-1",
+      "value":"aa"
+    },
+    "Column-name-2":{
+      "name":"Column-name-2",
+      "value":"bb"
+    }
+  }
+}
