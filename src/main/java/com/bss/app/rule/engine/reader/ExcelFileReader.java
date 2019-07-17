@@ -1,7 +1,9 @@
 package com.bss.app.rule.engine.reader;
 
 import com.bss.app.rule.engine.dto.Column;
+import com.bss.app.rule.engine.dto.ColumnCategory;
 import com.bss.app.rule.engine.dto.Rule;
+import com.bss.app.rule.engine.dto.Tuple2;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -43,20 +45,24 @@ public class ExcelFileReader {
             while (rowIterator.hasNext()) {
                 Rule rule = new Rule();
                 Row row = rowIterator.next();
-                List<Column> columnList = new ArrayList<>();
                 //For each row, iterate through all the columns
                 try {
-                    for (int i=0; i<columns.size(); i++) {
+                    for (int i = 0; i < columns.size(); i++) {
                         Cell cell = row.getCell(i);
                         //Check the cell type and format accordingly
-                        Column column = getColumn(columns, i, cell);
-                        columnList.add(column);
+                        Tuple2<ColumnCategory, Column> tuple2 = getColumn(columns, i, cell);
+                        if (tuple2.getF1().equals(ColumnCategory.ID)) {
+                            rule.setId(tuple2.getF2().getValue().toString());
+                        } else if (tuple2.getF1().equals(ColumnCategory.SUGGESTION)) {
+                            rule.addSuggestion(tuple2.getF2().getValue().toString());
+                        } else {
+                            rule.addColumn(tuple2.getF2());
+                        }
                     }
                 } catch (EnumConstantNotPresentException ecpe) {
                     LOGGER.error("Error occurred while reading excel file", ecpe);
                 }
-                rule.setColumns(columnList);
-                rule.setId(columnList.get(0).getValue().toString());
+                //rule.setId(columnList.get(0).getValue().toString());
                 rules.add(rule);
             }
         } catch (IOException e) {
@@ -76,37 +82,46 @@ public class ExcelFileReader {
         return rules;
     }
 
-    private Column getColumn(final List<String> columns, int cellNo, final Cell cell) {
+    private Tuple2<ColumnCategory, Column> getColumn(final List<String> columns, int cellNo, final Cell cell) {
         Column column = null;
+        ColumnCategory category = null;
         String columnName = columns.get(cellNo);
-        if (StringUtils.hasText(columnName) && columnName.equalsIgnoreCase(""))
-        if(cell == null) {
-            column = new Column<Double>(columnName, null);
-        } else {
-            switch (cell.getCellType()) {
-                case _NONE:
-                    column = new Column<Double>(columnName, null);
-                    break;
-                case BLANK:
-                    column = new Column<Double>(columnName, null);
-                    break;
-                case NUMERIC:
-                    column = new Column<Double>(columnName, cell.getNumericCellValue());
-                    System.out.print(cell.getNumericCellValue() + "\t");
-                    break;
-                case STRING:
-                    column = new Column<String>(columnName, cell.getStringCellValue());
-                    break;
-                case BOOLEAN:
-                    column = new Column<Boolean>(columnName, cell.getBooleanCellValue());
-                    break;
-                case ERROR:
-                    //throw new RuntimeException("Unexpected error occurred while reading excel sheet cell: " + cell);
-                    break;
+        if (StringUtils.hasText(columnName)) {
+            if (cell == null) {
+                column = new Column(columnName, null);
+                category = ColumnCategory.EMPTY;
+            } else if (columnName.equalsIgnoreCase("Rule-Id")) {
+                category = ColumnCategory.ID;
+                column = new Column(columnName, cell.getStringCellValue());
+            } else if (columnName.contains("Suggestion")) {
+                category = ColumnCategory.SUGGESTION;
+                column = new Column(columnName, cell.getStringCellValue());
+            } else {
+                category = ColumnCategory.REGULAR_COLUMN;
+                switch (cell.getCellType()) {
+                    case _NONE:
+                        column = new Column(columnName, null);
+                        break;
+                    case BLANK:
+                        column = new Column(columnName, null);
+                        break;
+                    case NUMERIC:
+                        column = new Column(columnName, cell.getStringCellValue());
+                        break;
+                    case STRING:
+                        column = new Column(columnName, cell.getStringCellValue());
+                        break;
+                    case BOOLEAN:
+                        column = new Column(columnName, cell.getStringCellValue());
+                        break;
+                    case ERROR:
+                        //throw new RuntimeException("Unexpected error occurred while reading excel sheet cell: " + cell);
+                        break;
+                }
             }
         }
 
-        return column;
+        return new Tuple2<>(category, column);
     }
 
     //"/mnt/sda5/work/codebase/rule-engine/data/input-file.xlsx"

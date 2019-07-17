@@ -2,13 +2,11 @@ package com.bss.app.rule.engine.dto;
 
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Rule {
     private String id;
-    private List<Column> columns;
+    private Map<String, Column> columns;
     private List<String> suggestions;
 
     public String getId() {
@@ -19,30 +17,34 @@ public class Rule {
         this.id = id;
     }
 
-    public List<Column> getColumns() {
+    public Map<String, Column> getColumns() {
         return columns;
     }
 
-    public void setColumns(List<Column> columns) {
+    public void setColumns(Map<String, Column> columns) {
         this.columns = columns;
+    }
+
+    public void addColumn(Column column) {
+        if (column != null) {
+            if (CollectionUtils.isEmpty(this.columns)) {
+                this.columns = new HashMap<>();
+            }
+            this.columns.put(column.getName(), column);
+        }
     }
 
     public List<String> getSuggestions() {
         return suggestions;
     }
 
-    public void setSuggestions(List<String> suggestions) {
-        if (CollectionUtils.isEmpty(this.suggestions)) {
-            this.suggestions = new ArrayList<>();
-        }
-        this.suggestions.addAll(suggestions);
-    }
-
     public void addSuggestion(final String suggestion) {
-        if (CollectionUtils.isEmpty(this.suggestions)) {
-            this.suggestions = new ArrayList<>();
+        if (suggestion != null) {
+            if (CollectionUtils.isEmpty(this.suggestions)) {
+                this.suggestions = new ArrayList<>();
+            }
+            this.suggestions.add(suggestion);
         }
-        this.suggestions.add(suggestion);
     }
 
     @Override

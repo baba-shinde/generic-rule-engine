@@ -2,9 +2,14 @@ package com.bss.app.rule.engine.dto;
 
 import java.util.Objects;
 
-public class Column<T> {
+public class Column {
     private String name;
-    private T value;
+    private String value;
+
+    public Column(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
 
     public String getName() {
         return name;
@@ -14,16 +19,11 @@ public class Column<T> {
         this.name = name;
     }
 
-    public T getValue() {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(T value) {
-        this.value = value;
-    }
-
-    public Column(String name, T value) {
-        this.name = name;
+    public void setValue(String value) {
         this.value = value;
     }
 
@@ -31,7 +31,7 @@ public class Column<T> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Column<?> column = (Column<?>) o;
+        Column column = (Column) o;
         return Objects.equals(name, column.name) &&
                 Objects.equals(value, column.value);
     }
@@ -45,7 +45,7 @@ public class Column<T> {
     public String toString() {
         final StringBuilder sb = new StringBuilder("Column{");
         sb.append("name='").append(name).append('\'');
-        sb.append(", value=").append(value);
+        sb.append(", value='").append(value).append('\'');
         sb.append('}');
         return sb.toString();
     }
