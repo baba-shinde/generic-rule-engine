@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(value = "com.bss.app.rule.engine")
+@ComponentScan(value = "com.bss.app")
 public class RuleEngineApplication {
 
     public static void main(String[] args) {

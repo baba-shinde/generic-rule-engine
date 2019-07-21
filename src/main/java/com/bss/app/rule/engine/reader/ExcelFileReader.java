@@ -93,7 +93,7 @@ public class ExcelFileReader {
             } else if (columnName.equalsIgnoreCase("Rule-Id")) {
                 category = ColumnCategory.ID;
                 column = new Column(columnName, cell.getStringCellValue());
-            } else if (columnName.contains("Suggestion")) {
+            } else if (columnName.contains("Assessment")) {
                 category = ColumnCategory.SUGGESTION;
                 column = new Column(columnName, cell.getStringCellValue());
             } else {
