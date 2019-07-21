@@ -1,63 +1,51 @@
 {
-  "requestId":"REQUEST-1",
-  "columns":{
-    "Column-name-1":{
-      "name":"Column-name-1",
-      "value":"aa"
+  "requestId": "REQ-001",
+  "answers": [
+    {
+      "qustionId": "1",
+      "answer": null
     },
-    "Column-name-2":{
-      "name":"Column-name-2",
-      "value":"bb"
+    {
+      "qustionId": "2",
+      "answer": "GREEN"
+    },
+    {
+      "qustionId": "3",
+      "answer": "No"
+    },
+    {
+      "qustionId": "4",
+      "answer": "Yes",
+      "nestedAnswers" :[
+        {
+          "qustionId": "5",
+          "answer": "Non Relational",
+          "nestedAnswers" :[
+            {
+              "qustionId": "6",
+              "answer": null
+            },
+            {
+              "qustionId": "7",
+              "answer": "Neo4j"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "qustionId": "8",
+      "answer": "Yes",
+      "nestedAnswers": [
+        {
+          "qustionId": "9",
+          "answer": "Yes"
+        }
+      ]
+    },
+    {
+      "qustionId": "10",
+      "answer": "No"
     }
-  }
+  ]
 }
-
---------------
-Req : {}
-Res:
-{
-"originalRequestId": null,
-"questions": [
-{
-"id": "1",
-"text": "what is the ISAC id?",
-"questionCategory": "FREE_TEXT",
-"rawOptions": null,
-"options": null,
-"questionMap": null,
-"dependsOnQuestion": null,
-"dependsOnOption": null,
-"associatedColumnInRules": "ISAC"
-},
-{
-"id": "2",
-"text": "Which zone this project falls under?",
-"questionCategory": "ONE_IN_MANY",
-"rawOptions": "RED#GREEN",
-"options": [
-"RED",
-"GREEN"
-],
-"questionMap": null,
-"dependsOnQuestion": null,
-"dependsOnOption": null,
-"associatedColumnInRules": "Zone"
-},
-{
-"id": "3",
-"text": "Does project has CID?",
-"questionCategory": "BOOLEAN",
-"rawOptions": "Yes|No",
-"options": [
-"Yes",
-"No"
-],
-"questionMap": null,
-"dependsOnQuestion": null,
-"dependsOnOption": null,
-"associatedColumnInRules": "CID"
-}
-]
-}
--------------
-
