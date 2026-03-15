@@ -168,4 +168,47 @@ class RuleEngineExceptionTest {
         // writableStackTrace false => no stack trace retained
         assertEquals(0, ex.getStackTrace().length);
     }
+
+    // ---------------------------------------------------------------------
+    // Tests specifically covering the single-argument String constructor
+    // ---------------------------------------------------------------------
+
+    @Test
+    void constructor_stringOnly_nonNull() {
+        String msg = "only-string";
+        RuleEngineException ex = new RuleEngineException(msg);
+
+        assertEquals(msg, ex.getMessage());
+        assertNull(ex.getCause());
+        // default behavior keeps a stack trace
+        assertTrue(ex.getStackTrace().length > 0);
+        assertEquals(0, ex.getSuppressed().length);
+    }
+
+    @Test
+    void constructor_stringOnly_null() {
+        RuleEngineException ex = new RuleEngineException((String) null);
+
+        assertNull(ex.getMessage());
+        assertNull(ex.getCause());
+        assertEquals(0, ex.getSuppressed().length);
+    }
+
+    @Test
+    void constructor_stringOnly_empty() {
+        RuleEngineException ex = new RuleEngineException("");
+
+        assertEquals("", ex.getMessage());
+        assertNull(ex.getCause());
+    }
+
+    @Test
+    void thrown_stringOnly_retainsMessage() {
+        String msg = "thrown-string";
+        RuleEngineException thrown = assertThrows(RuleEngineException.class, () -> {
+            throw new RuleEngineException(msg);
+        });
+
+        assertEquals(msg, thrown.getMessage());
+    }
 }
