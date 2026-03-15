@@ -49,6 +49,14 @@ class RuleEngineExceptionTest {
     }
 
     @Test
+    void defaultConstructor_noArgs() {
+        RuleEngineException ex = new RuleEngineException();
+
+        assertNull(ex.getMessage());
+        assertNull(ex.getCause());
+    }
+
+    @Test
     void constructor_withNestedCause() {
         Throwable inner = new IllegalStateException("inner");
         Throwable outer = new Exception("outer", inner);
