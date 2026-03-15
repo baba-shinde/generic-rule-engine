@@ -59,4 +59,25 @@ class RuleEngineExceptionTest {
         assertSame(outer, ex.getCause());
         assertSame(inner, ex.getCause().getCause());
     }
+
+    @Test
+    void constructor_causeOnly_nonNull() {
+        Throwable cause = new IllegalArgumentException("only-cause");
+
+        RuleEngineException ex = new RuleEngineException(cause);
+
+        // When constructed with Throwable cause only, message should be cause.toString()
+        assertSame(cause, ex.getCause());
+        assertEquals(cause.toString(), ex.getMessage());
+        assertEquals(cause.toString(), ex.getLocalizedMessage());
+        assertTrue(ex.toString().contains("RuleEngineException"));
+    }
+
+    @Test
+    void constructor_causeOnly_null() {
+        RuleEngineException ex = new RuleEngineException((Throwable) null);
+
+        assertNull(ex.getMessage());
+        assertNull(ex.getCause());
+    }
 }

@@ -1,17 +1,14 @@
 package com.bss.app.ghcp.cli;
 
+import org.springframework.util.StringUtils;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +23,8 @@ import java.util.regex.Pattern;
  * Example: java JacocoReportReader target/site/jacoco/index.html 3 50
  */
 public class JacocoReportReader {
+    private Map<String, CodeCoverageDetails> classCoverageMap = new HashMap<>();
+    private Pattern subClassPattern = Pattern.compile(".*\\$\\d+\\.html$");
 
     private final Path reportPath;
 
@@ -45,10 +44,10 @@ public class JacocoReportReader {
      * Read report, parse summary and traverse pages up to maxDepth to list classes
      * whose coverage is <= thresholdPercent.
      */
-    public void readAndLogReport(int maxDepth, double thresholdPercent) {
+    public Map<String, CodeCoverageDetails> readAndLogReport(int maxDepth, double thresholdPercent) {
         if (!Files.exists(reportPath)) {
             System.out.println("JaCoCo report not found at: " + reportPath.toAbsolutePath());
-            return;
+            return null;
         }
 
         try {
@@ -75,9 +74,15 @@ public class JacocoReportReader {
                 }
             }
 
+            if (classCoverageMap.size() > 0) {
+                classCoverageMap.values().stream().forEach(System.out::println);
+            }
+
         } catch (IOException e) {
             System.err.println("Failed to read JaCoCo report: " + e.getMessage());
         }
+
+        return classCoverageMap;
     }
 
     // Parse summary totals from the main index.html (same logic as before)
@@ -198,7 +203,9 @@ public class JacocoReportReader {
                                 } catch (IOException ignored) {
                                 }
                             }
-                            String entry = String.format("%s - %s%% (from %s)", linkText, new DecimalFormat("0.##").format(effectivePct), rel);
+                            String per = new DecimalFormat("0.##").format(effectivePct);
+                            String entry = String.format("%s - %s%% (from %s)", linkText, per, rel);
+                            processCodeCoverageEntry(linkText, per, rel);
                             results.add(entry);
                         }
 
@@ -223,6 +230,31 @@ public class JacocoReportReader {
         }
 
         return results;
+    }
+
+    private void processCodeCoverageEntry(String linkText, String percentage, String relPath) {
+        if (StringUtils.hasText(linkText) && StringUtils.hasText(percentage) && StringUtils.hasText(relPath)) {
+            if(relPath.endsWith("index.html")) {
+                //that means this is a leaf level class
+                String fqdnClass = relPath.split("/index.html")[0].concat(".").concat(linkText);
+                if (!classCoverageMap.containsKey(fqdnClass)) {
+                    CodeCoverageDetails coverageDetails = new CodeCoverageDetails();
+                    coverageDetails.setFqdnClassName(fqdnClass);
+                    coverageDetails.setPercentageCoverage(new Double(percentage));
+                    classCoverageMap.put(fqdnClass, coverageDetails);
+                }
+            } else {
+                if (subClassPattern.matcher(relPath).find()) {
+                    return;
+                }
+                String fqdnClass = relPath.replace("/", ".").replace(".html", "");
+                if (fqdnClass.contains("$")) {
+                    fqdnClass = fqdnClass.replace("$", ".");
+                }
+                CodeCoverageDetails coverageDetails = classCoverageMap.get(fqdnClass);
+                coverageDetails.addMethodCoverage(linkText, new Double(percentage));
+            }
+        }
     }
 
     /**
@@ -292,6 +324,16 @@ public class JacocoReportReader {
             this.path = path;
             this.depth = depth;
         }
+    }
+
+    public Map<String, CodeCoverageDetails> extractJacocoReportDetails() {
+        Path path = null;
+        int depth = Integer.MAX_VALUE;
+        double threshold = 99.0;
+        JacocoReportReader reader = path == null ? new JacocoReportReader() : new JacocoReportReader(path);
+        reader.readAndLogReport(depth, threshold);
+
+        return reader.classCoverageMap;
     }
 
     public static void main(String[] args) {
