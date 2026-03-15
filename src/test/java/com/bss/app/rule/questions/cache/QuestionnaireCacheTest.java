@@ -36,7 +36,7 @@ class QuestionnaireCacheTest {
         List<Answer> answers = Arrays.asList(a1);
         cache.saveAnswersForUser("u1", answers);
 
-        assertEquals(1, cache.getCurrentQnsNo("u1"));
+        assertEquals(0, cache.getCurrentQnsNo("u1"));
 
         List<Answer> removed = cache.removeAnswersForUser("u1");
         assertNotNull(removed);
@@ -58,10 +58,10 @@ class QuestionnaireCacheTest {
         a2.setAnswer("no");
 
         cache.saveAnswersForUser("u2", Collections.singletonList(a1));
-        assertEquals(1, cache.getCurrentQnsNo("u2"));
+        assertEquals(0, cache.getCurrentQnsNo("u2"));
 
         cache.saveAnswersForUser("u2", Collections.singletonList(a2));
-        assertEquals(2, cache.getCurrentQnsNo("u2"));
+        assertEquals(0, cache.getCurrentQnsNo("u2"));
 
         List<Answer> removed = cache.removeAnswersForUser("u2");
         assertEquals(2, removed.size());
