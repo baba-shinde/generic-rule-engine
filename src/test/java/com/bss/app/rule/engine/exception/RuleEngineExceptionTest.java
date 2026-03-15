@@ -80,4 +80,84 @@ class RuleEngineExceptionTest {
         assertNull(ex.getMessage());
         assertNull(ex.getCause());
     }
+
+    @Test
+    void protectedConstructor_suppressionTrue_stackTraceTrue() {
+        String msg = "msg-true-true";
+        Throwable cause = new RuntimeException("c");
+
+        RuleEngineException ex = new RuleEngineException(msg, cause, true, true);
+
+        assertEquals(msg, ex.getMessage());
+        assertSame(cause, ex.getCause());
+
+        Exception suppressed = new Exception("suppressed");
+        ex.addSuppressed(suppressed);
+        Throwable[] suppressedArr = ex.getSuppressed();
+        assertEquals(1, suppressedArr.length);
+        assertSame(suppressed, suppressedArr[0]);
+
+        // writableStackTrace true => stack trace should be present
+        assertTrue(ex.getStackTrace().length > 0);
+    }
+
+    @Test
+    void protectedConstructor_suppressionTrue_stackTraceFalse() {
+        String msg = "msg-true-false";
+        Throwable cause = new RuntimeException("c");
+
+        RuleEngineException ex = new RuleEngineException(msg, cause, true, false);
+
+        assertEquals(msg, ex.getMessage());
+        assertSame(cause, ex.getCause());
+
+        Exception suppressed = new Exception("suppressed");
+        ex.addSuppressed(suppressed);
+        Throwable[] suppressedArr = ex.getSuppressed();
+        assertEquals(1, suppressedArr.length);
+        assertSame(suppressed, suppressedArr[0]);
+
+        // writableStackTrace false => no stack trace retained
+        assertEquals(0, ex.getStackTrace().length);
+    }
+
+    @Test
+    void protectedConstructor_suppressionFalse_stackTraceTrue() {
+        String msg = "msg-false-true";
+        Throwable cause = new RuntimeException("c");
+
+        RuleEngineException ex = new RuleEngineException(msg, cause, false, true);
+
+        assertEquals(msg, ex.getMessage());
+        assertSame(cause, ex.getCause());
+
+        Exception suppressed = new Exception("suppressed");
+        ex.addSuppressed(suppressed);
+        Throwable[] suppressedArr = ex.getSuppressed();
+        // suppression disabled => no suppressed exceptions recorded
+        assertEquals(0, suppressedArr.length);
+
+        // writableStackTrace true => stack trace should be present
+        assertTrue(ex.getStackTrace().length > 0);
+    }
+
+    @Test
+    void protectedConstructor_suppressionFalse_stackTraceFalse() {
+        String msg = "msg-false-false";
+        Throwable cause = new RuntimeException("c");
+
+        RuleEngineException ex = new RuleEngineException(msg, cause, false, false);
+
+        assertEquals(msg, ex.getMessage());
+        assertSame(cause, ex.getCause());
+
+        Exception suppressed = new Exception("suppressed");
+        ex.addSuppressed(suppressed);
+        Throwable[] suppressedArr = ex.getSuppressed();
+        // suppression disabled => no suppressed exceptions recorded
+        assertEquals(0, suppressedArr.length);
+
+        // writableStackTrace false => no stack trace retained
+        assertEquals(0, ex.getStackTrace().length);
+    }
 }
